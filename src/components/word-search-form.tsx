@@ -1,68 +1,77 @@
+import { useForm } from 'react-hook-form';
 import { useState } from 'react';
-import type { WordSearchResponse } from '../types/word-search.interface';
+import type { WordSearchRequest, WordSearchResponse } from '../types/word-search.interface';
 import { searchWords } from '../api/word-search';
 
+type FormValues = {
+  matrixInput: string;
+  wordsInput: string;
+};
+
 export default function WordSearchForm() {
-  const [matrixInput, setMatrixInput] = useState('');
-  const [wordsInput, setWordsInput] = useState('');
+  const { register, handleSubmit, formState: { errors } } = useForm<FormValues>();
   const [result, setResult] = useState<WordSearchResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async () => {
-    const matrix = matrixInput
+  const onSubmit = async (data: FormValues) => {
+    const matrix = data.matrixInput
       .trim()
       .split('\n')
       .map((row) => row.split(',').map((c) => c.trim().toUpperCase()));
 
-    const words = wordsInput
+    const words = data.wordsInput
       .trim()
       .split(/[\n,]+/)
-      .map((palabra) => palabra.trim().toUpperCase())
+      .map((w) => w.trim().toUpperCase())
       .filter(Boolean);
+
+    const payload: WordSearchRequest = { matrix, words };
 
     try {
       setLoading(true);
-      const response = await searchWords({ matrix, words });
+      const response = await searchWords(payload);
       setResult(response);
     } catch (error) {
       console.error(error);
-      alert('Ocurrió un error al buscar palabras.');
+      alert('Error al buscar palabras.');
     } finally {
       setLoading(false);
     }
   };
- 
+
   return (
     <div>
       <h2>Sopa de Letras</h2>
 
-      <label>Matriz (14x14, separada por comas):</label>
-      <textarea
-        rows={14}
-        cols={50}
-        value={matrixInput}
-        onChange={(e) => setMatrixInput(e.target.value)}
-        placeholder="N,D,E,K,I,C,A,N,G,U,R,O,G,E..."
-      />
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <label>Matriz (14x14, separada por comas):</label>
+        <textarea
+          rows={14}
+          cols={50}
+          placeholder="N,D,E,K,I,C,A,N,G,U,R,O,G,E..."
+          {...register('matrixInput', { required: true })}
+        />
+        {errors.matrixInput && <p style={{ color: 'red' }}>La matriz es obligatoria</p>}
 
-      <label>Palabras a buscar:</label>
-      <textarea
-        rows={5}
-        cols={50}
-        value={wordsInput}
-        onChange={(e) => setWordsInput(e.target.value)}
-        placeholder="GATO, PERRO, JAGUAR..."
-      />
+        <label>Palabras a buscar:</label>
+        <textarea
+          rows={5}
+          cols={50}
+          placeholder="GATO, PERRO, JAGUAR..."
+          {...register('wordsInput', { required: true })}
+        />
+        {errors.wordsInput && <p style={{ color: 'red' }}>Debes ingresar al menos una palabra</p>}
 
-      <button onClick={handleSubmit} disabled={loading}>
-        {loading ? 'Buscando...' : 'Buscar palabras'}
-      </button>
+        <button type="submit" disabled={loading} style={{ marginTop: '1rem' }}>
+          {loading ? 'Buscando...' : 'Buscar palabras'}
+        </button>
+      </form>
 
       {result && (
-        <div style={{ marginTop: '1rem' }}>
+        <div style={{ marginTop: '2rem' }}>
           <h3>Resultados:</h3>
           <div>
-            <strong>✅ Encontradas:</strong>
+            <strong>Encontradas:</strong>
             <ul>
               {result.found.map((word) => (
                 <li key={word}>{word}</li>
