@@ -4,8 +4,8 @@ import type { WordSearchRequest, WordSearchResponse } from '../types/word-search
 import { searchWords } from '../api/word-search';
 
 type FormValues = {
-  matrixInput: string;
-  wordsInput: string;
+  matrix: string;
+  words: string;
 };
 
 export default function WordSearchForm() {
@@ -14,12 +14,13 @@ export default function WordSearchForm() {
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async (data: FormValues) => {
-    const matrix = data.matrixInput
+    console.log(data)
+    const matrix = data.matrix
       .trim()
       .split('\n')
       .map((row) => row.split(',').map((c) => c.trim().toUpperCase()));
 
-    const words = data.wordsInput
+    const words = data.words
       .trim()
       .split(/[\n,]+/)
       .map((w) => w.trim().toUpperCase())
@@ -49,18 +50,18 @@ export default function WordSearchForm() {
           rows={14}
           cols={50}
           placeholder="N,D,E,K,I,C,A,N,G,U,R,O,G,E..."
-          {...register('matrixInput', { required: true })}
+          {...register('matrix', { required: true })}
         />
-        {errors.matrixInput && <p style={{ color: 'red' }}>La matriz es obligatoria</p>}
+        {errors.matrix && <p style={{ color: 'red' }}>La matriz es obligatoria</p>}
 
         <label>Palabras a buscar:</label>
         <textarea
           rows={5}
           cols={50}
           placeholder="GATO, PERRO, JAGUAR..."
-          {...register('wordsInput', { required: true })}
+          {...register('words', { required: true })}
         />
-        {errors.wordsInput && <p style={{ color: 'red' }}>Debes ingresar al menos una palabra</p>}
+        {errors.words && <p style={{ color: 'red' }}>Debes ingresar al menos una palabra</p>}
 
         <button type="submit" disabled={loading} style={{ marginTop: '1rem' }}>
           {loading ? 'Buscando...' : 'Buscar palabras'}
@@ -73,7 +74,7 @@ export default function WordSearchForm() {
           <div>
             <strong>Encontradas:</strong>
             <ul>
-              {result.found.map((word) => (
+              {result.encontrado.map((word) => (
                 <li key={word}>{word}</li>
               ))}
             </ul>
@@ -81,7 +82,7 @@ export default function WordSearchForm() {
           <div>
             <strong> No encontradas:</strong>
             <ul>
-              {result.notFound.map((word) => (
+              {result.noEncontrado.map((word) => (
                 <li key={word}>{word}</li>
               ))}
             </ul>

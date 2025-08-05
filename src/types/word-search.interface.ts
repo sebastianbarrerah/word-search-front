@@ -4,6 +4,6 @@ export interface WordSearchRequest {
 }
 
 export interface WordSearchResponse {
-  found: string[];
-  notFound: string[];
+  encontrado: string[];
+  noEncontrado: string[];
 }
