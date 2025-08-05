@@ -1,4 +1,4 @@
-import WordSearchForm from "../components/word-search-form";
+import WordSearchForm from "../components/form/word-search-form";
 
 export default function Home() {
   return (
